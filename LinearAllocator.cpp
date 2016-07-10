@@ -13,7 +13,7 @@ LinearAllocator::~LinearAllocator()
 	VirtualFree(m_start, 0, MEM_RELEASE);
 }
 
-void* LinearAllocator::allocate(_In_ size_t sizeInByte, _In_opt_ size_t alignment)
+void* LinearAllocator::allocate(size_t sizeInByte, size_t alignment)
 {
 	if (m_currentSize >= m_size)
 		return nullptr;
