@@ -6,7 +6,7 @@
 #include <cstdint>
 
 #if defined _WIN64
-#define GRANULARITY 8
+#define ALIGNMENT 8
 #elif defined _WIN32
 #define ALIGNMENT 16
 #endif
