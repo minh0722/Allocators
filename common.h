@@ -6,9 +6,9 @@
 #include <cstdint>
 
 #if defined _WIN64
-#define GRANULARITY 64
+#define GRANULARITY 8
 #elif defined _WIN32
-#define ALIGNMENT 32
+#define ALIGNMENT 16
 #endif
 
 size_t alignTo(const size_t size, const size_t alignment);
