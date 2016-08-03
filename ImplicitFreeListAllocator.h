@@ -14,6 +14,8 @@ private:
 
     size_t blockSize(void* ptr);
 
+    void setBlockSize(void* ptr, size_t size);
+
 private:
     void* m_start;
     void* m_end;
