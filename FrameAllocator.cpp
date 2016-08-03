@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <exception>
 #include <cstdint>
+#include "util.h"
 
 FrameAllocator::FrameAllocator(size_t size)
 {
@@ -15,7 +16,6 @@ FrameAllocator::FrameAllocator(size_t size)
     m_current = m_start;
 }
 
-
 FrameAllocator::~FrameAllocator()
 {
     free(m_start);
@@ -23,7 +23,14 @@ FrameAllocator::~FrameAllocator()
 
 void* FrameAllocator::allocate(size_t size, size_t alignment)
 {
-    return nullptr;
+    uintptr_t alignedMem = Util::alignTo((uintptr_t)m_current, alignment);
+
+    if (alignedMem + size > (uintptr_t)m_end)
+        return nullptr;
+
+    m_current = (uint8_t*)alignedMem + size;
+
+    return (void*)alignedMem;
 }
 
 void FrameAllocator::reset()
