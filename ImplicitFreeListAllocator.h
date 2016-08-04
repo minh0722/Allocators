@@ -12,6 +12,8 @@ public:
 private:
     bool isAllocatedBlock(void* ptr);
 
+    void setBlockAllocated(void* ptr, bool isAllocated);
+
     size_t blockSize(void* ptr);
 
     void setBlockSize(void* ptr, size_t size);
