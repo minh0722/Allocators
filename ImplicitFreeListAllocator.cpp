@@ -21,7 +21,7 @@ ImplicitFreeListAllocator::ImplicitFreeListAllocator(size_t size)
 
     m_start = mem;
     m_end = (uint8_t*)mem + size;
-    m_mem = m_start;
+    m_mem = (void*)align((uintptr_t)mem, 2);
 
     // setting the header for the initial block
     // the LSB = 0 by default
