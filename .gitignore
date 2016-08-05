@@ -252,3 +252,4 @@ paket-files/
 *.sln.iml
 
 main.cpp
+copyFile.sh

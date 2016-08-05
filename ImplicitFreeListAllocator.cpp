@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <exception>
 #include <cstdint>
+#include <cassert>
 #include "util.h"
 
 ImplicitFreeListAllocator::ImplicitFreeListAllocator(size_t size)
@@ -49,7 +50,9 @@ void* ImplicitFreeListAllocator::allocate(size_t size, size_t alignment)
         //    return currentBlockMem;
         //}
 
-        if (isAllocatedBlock(currentBlockHeader) || currentBlockSize < size || alignedMem + size + HEADER_SIZE + 2 >= nextBlockHeader)
+        if (isAllocatedBlock(currentBlockHeader) || 
+            currentBlockSize < size || 
+            alignedMem + size + HEADER_SIZE + 2 >= nextBlockHeader)     // if we can't split to the right
         {
             currentBlockHeader = nextBlockHeader;
             currentBlockMem = currentBlockHeader + HEADER_SIZE;
@@ -99,49 +102,48 @@ void* ImplicitFreeListAllocator::allocate(size_t size, size_t alignment)
 
 
 
-    // find the block that is big enough and it's free
-    while (currentBlockHeader < m_end && 
-            (isAllocatedBlock(currentBlockHeader) || 
-            blockSize(currentBlockHeader) < size || 
-            align(size, 2) + HEADER_SIZE + 2 > blockSize(currentBlockHeader) || 
-            align(size, 2) != blockSize(currentBlockHeader)))
-    {
-        currentBlockHeader += (HEADER_SIZE + blockSize(currentBlockHeader));
-    }
+    //// find the block that is big enough and it's free
+    //while (currentBlockHeader < m_end && 
+    //        (isAllocatedBlock(currentBlockHeader) || 
+    //        blockSize(currentBlockHeader) < size || 
+    //        align(size, 2) + HEADER_SIZE + 2 > blockSize(currentBlockHeader) || 
+    //        align(size, 2) != blockSize(currentBlockHeader)))
+    //{
+    //    currentBlockHeader += (HEADER_SIZE + blockSize(currentBlockHeader));
+    //}
 
-    if (currentBlockHeader >= m_end)
-    {
-        return nullptr;
-    }
-    
-    // get the block memory pointer
-    uint8_t* blockMem = currentBlockHeader + HEADER_SIZE;
-    
-    // first case: this block alignment is good
-    uint8_t* alignedBlockMem = (uint8_t*)align((uintptr_t)currentBlockMem, alignment);
-    
-    if (alignedBlockMem == currentBlockMem)
-    {
-        // split the block and return the pointer
-    }
+    //if (currentBlockHeader >= m_end)
+    //{
+    //    return nullptr;
+    //}
+    //
+    //// get the block memory pointer
+    //uint8_t* blockMem = currentBlockHeader + HEADER_SIZE;
+    //
+    //// first case: this block alignment is good
+    //uint8_t* alignedBlockMem = (uint8_t*)align((uintptr_t)currentBlockMem, alignment);
+    //
+    //if (alignedBlockMem == currentBlockMem)
+    //{
+    //    // split the block and return the pointer
+    //}
 
 
-    // second case: search for next aligned block. Have to be careful with the header
-    uint8_t* alignedBlockHeader = (uint8_t*)align((uintptr_t)currentBlockMem, alignment) - HEADER_SIZE;
-    
-    while (alignedBlockHeader == alignedBlockMem || alignedBlockHeader < currentBlockHeader)
-    {
-        alignedBlockHeader += alignment;
-    }
-    
-    if (alignedBlockHeader + HEADER_SIZE + size >= m_end)
-    {
-        return nullptr;
-    }
-    
-    size_t leftBlockSize = alignedBlockHeader - currentBlockMem;
-    setBlockSize(currentBlockHeader, leftBlockSize);
-
+    //// second case: search for next aligned block. Have to be careful with the header
+    //uint8_t* alignedBlockHeader = (uint8_t*)align((uintptr_t)currentBlockMem, alignment) - HEADER_SIZE;
+    //
+    //while (alignedBlockHeader == alignedBlockMem || alignedBlockHeader < currentBlockHeader)
+    //{
+    //    alignedBlockHeader += alignment;
+    //}
+    //
+    //if (alignedBlockHeader + HEADER_SIZE + size >= m_end)
+    //{
+    //    return nullptr;
+    //}
+    //
+    //size_t leftBlockSize = alignedBlockHeader - currentBlockMem;
+    //setBlockSize(currentBlockHeader, leftBlockSize);
     
 }
 
@@ -164,12 +166,13 @@ void ImplicitFreeListAllocator::setBlockAllocated(void* ptr, bool isAllocated)
 
 size_t ImplicitFreeListAllocator::blockSize(void * ptr)
 {
-    return *(size_t*)ptr >> 1;
+    return *(size_t*)ptr & -2;
 }
 
 void ImplicitFreeListAllocator::setBlockSize(void* ptr, size_t size)
 {
+    assert(!(size & 1));
+    
     // clear size bits
-    *(size_t*)ptr &= 1;
-    *(size_t*)ptr |= (size << 1);
+    *(size_t*)ptr |= size;
 }
