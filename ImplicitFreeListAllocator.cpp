@@ -36,6 +36,7 @@ ImplicitFreeListAllocator::~ImplicitFreeListAllocator()
 
 void* ImplicitFreeListAllocator::allocate(size_t size, size_t alignment)
 {
+    assert(!(alignment & 1));
     size = align(size, 2);
 
     uint8_t* currentBlockHeader = (uint8_t*)m_mem;
