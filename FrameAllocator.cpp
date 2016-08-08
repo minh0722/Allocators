@@ -23,7 +23,7 @@ FrameAllocator::~FrameAllocator()
 
 void* FrameAllocator::allocate(size_t size, size_t alignment)
 {
-    uintptr_t alignedMem = Util::alignTo((uintptr_t)m_current, alignment);
+    uintptr_t alignedMem = align((uintptr_t)m_current, alignment);
 
     if (alignedMem + size > (uintptr_t)m_end)
         return nullptr;
@@ -31,6 +31,12 @@ void* FrameAllocator::allocate(size_t size, size_t alignment)
     m_current = (uint8_t*)alignedMem + size;
 
     return (void*)alignedMem;
+}
+
+template<typename T>
+T* FrameAllocator::allocateObject(size_t size, size_t alignment)
+{
+    
 }
 
 void FrameAllocator::reset()

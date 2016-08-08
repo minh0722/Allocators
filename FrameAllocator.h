@@ -1,4 +1,11 @@
 #pragma once
+
+struct Deleter
+{
+    void (*del)(void* ptr);
+    Deleter* nextDeleter;
+};
+
 class FrameAllocator
 {
 public:
@@ -7,10 +14,12 @@ public:
 
     void* allocate(size_t size, size_t alignment);
 
+    template <typename T>
+    T* allocateObject(size_t size, size_t alignment);
+    
     void reset();
 private:
     void* m_start;
     void* m_end;
     void* m_current;
 };
-
