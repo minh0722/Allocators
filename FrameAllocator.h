@@ -22,4 +22,6 @@ private:
     void* m_start;
     void* m_end;
     void* m_current;
+
+    Deleter* m_deleters;
 };

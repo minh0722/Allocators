@@ -41,5 +41,12 @@ T* FrameAllocator::allocateObject(size_t size, size_t alignment)
 
 void FrameAllocator::reset()
 {
+    if (!m_deleters)
+    {
+        do {
+            m_deleters->cleanup();
+        }
+    }
+
     m_current = m_start;
 }
