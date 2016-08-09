@@ -105,6 +105,12 @@ void* ImplicitFreeListAllocator::allocate(size_t size, size_t alignment)
 
 void ImplicitFreeListAllocator::free(void * ptr)
 {
+    cout << "free" << endl;
+    if (!ptr)
+    {
+        return;
+    }
+
     uint8_t* prevBlockHeader = nullptr;
     uint8_t* prevBlockMem = nullptr;
     uint8_t* currentBlockHeader = (uint8_t*)m_mem;
@@ -124,6 +130,58 @@ void ImplicitFreeListAllocator::free(void * ptr)
             nextBlockMem = nextBlockHeader + HEADER_SIZE;
             continue;
         }
+
+        // coalesce with the right block
+        if (!isAllocatedBlock(nextBlockHeader))
+        {
+            size_t totalSize = blockSize(currentBlockHeader) + HEADER_SIZE + blockSize(nextBlockHeader);
+            setBlockSize(currentBlockHeader, totalSize);
+            setBlockAllocated(currentBlockHeader, false);
+        }
+
+        // coalesce with the left block
+        if (prevBlockHeader != nullptr && prevBlockMem != nullptr && !isAllocatedBlock(prevBlockHeader))
+        {
+            size_t totalSize = blockSize(prevBlockHeader) + HEADER_SIZE + blockSize(currentBlockHeader);
+
+            setBlockSize(prevBlockHeader, totalSize);
+            setBlockAllocated(prevBlockHeader, false);
+        }
+        break;
+    }
+}
+
+template <typename T>
+void ImplicitFreeListAllocator::free(void* ptr)
+{
+    cout << "template free" << endl;
+    if (!ptr)
+    {
+        return;
+    }
+
+    uint8_t* prevBlockHeader = nullptr;
+    uint8_t* prevBlockMem = nullptr;
+    uint8_t* currentBlockHeader = (uint8_t*)m_mem;
+    uint8_t* currentBlockMem = currentBlockHeader + HEADER_SIZE;
+    uint8_t* nextBlockHeader = currentBlockMem + blockSize(currentBlockHeader);
+    uint8_t* nextBlockMem = nextBlockHeader + HEADER_SIZE;
+
+    while (currentBlockHeader != m_end)
+    {
+        if (currentBlockMem != ptr)
+        {
+            prevBlockHeader = currentBlockHeader;
+            prevBlockMem = currentBlockMem;
+            currentBlockHeader = nextBlockHeader;
+            currentBlockMem = nextBlockMem;
+            nextBlockHeader = currentBlockMem + blockSize(currentBlockHeader);
+            nextBlockMem = nextBlockHeader + HEADER_SIZE;
+            continue;
+        }
+
+        // call destructor on the object
+        reinterpret_cast<T*>(currentBlockMem)->~T();
 
         // coalesce with the right block
         if (!isAllocatedBlock(nextBlockHeader))
@@ -171,3 +229,7 @@ void ImplicitFreeListAllocator::setBlockSize(void* ptr, size_t size)
     *(size_t*)ptr &= 1;
     *(size_t*)ptr |= size;
 }
+
+
+template void ImplicitFreeListAllocator::free<A>(void* ptr);
+template void ImplicitFreeListAllocator::free<B>(void* ptr);

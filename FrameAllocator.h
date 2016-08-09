@@ -1,22 +1,4 @@
 #pragma once
-
-#include <iostream>
-using namespace std;
-
-struct A
-{
-    A() { cout << "A constructor " << this << endl; }
-    ~A() { cout << "A destructor" << this << endl; }
-    int a;
-};
-
-struct B
-{
-    B() { cout << "B constructor " << this << endl; }
-    ~B() { cout << "B destructor" << this << endl; }
-    int b;
-};
-
 struct Deleter
 {
     void (*cleanup)(void* ptr);

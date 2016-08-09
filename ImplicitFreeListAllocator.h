@@ -16,6 +16,10 @@ public:
     ~ImplicitFreeListAllocator();
 
     void* allocate(size_t size, size_t alignment);
+
+    void free(void* ptr);
+
+    template <typename T>
     void free(void* ptr);
 
 private:
