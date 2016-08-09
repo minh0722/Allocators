@@ -7,6 +7,7 @@
 #include "util.h"
 
 const size_t HEADER_SIZE = sizeof(size_t);
+const size_t SMALLEST_BLOCK_SIZE = 2;
 
 ImplicitFreeListAllocator::ImplicitFreeListAllocator(size_t size)
 {
@@ -37,7 +38,7 @@ ImplicitFreeListAllocator::~ImplicitFreeListAllocator()
 void* ImplicitFreeListAllocator::allocate(size_t size, size_t alignment)
 {
     assert(!(alignment & 1));
-    size = align(size, 2);
+    size = align(size, SMALLEST_BLOCK_SIZE);
 
     uint8_t* currentBlockHeader = (uint8_t*)m_mem;
     uint8_t* currentBlockMem = currentBlockHeader + HEADER_SIZE;
@@ -46,8 +47,10 @@ void* ImplicitFreeListAllocator::allocate(size_t size, size_t alignment)
     while (currentBlockHeader < m_end)
     {
         size_t currentBlockSize = blockSize(currentBlockHeader);
-        uint8_t* alignedMem = (uint8_t*)align((uintptr_t)currentBlockMem, alignment);
-        uint8_t* alignedMemHeader = alignedMem - HEADER_SIZE;
+        uint8_t* alignedMemHeader = (uint8_t*)alignHeader((uintptr_t)currentBlockHeader, HEADER_SIZE, alignment);
+        uint8_t* alignedMem = alignedMemHeader + HEADER_SIZE;
+
+        size_t allocatedBlockAndHeaderSize = HEADER_SIZE + size;
 
         //if (alignedMem == currentBlockMem && size == currentBlockSize)
         //{
@@ -56,15 +59,16 @@ void* ImplicitFreeListAllocator::allocate(size_t size, size_t alignment)
         //}
 
         // make sure that we can split to the left
-        while (alignedMemHeader < currentBlockMem + 2 && alignedMem != currentBlockMem)
+        while (alignedMemHeader < currentBlockMem + SMALLEST_BLOCK_SIZE && alignedMemHeader != currentBlockHeader)
         {
-            alignedMem += alignment;
-            alignedMemHeader = alignedMem - HEADER_SIZE;
+            alignedMemHeader += (HEADER_SIZE + alignment);
+            alignedMem = alignedMemHeader + HEADER_SIZE;
         }
 
+        // make sure that we can split to the right
         if (isAllocatedBlock(currentBlockHeader) ||
             currentBlockSize < size ||
-            alignedMem + size + HEADER_SIZE + 2 >= nextBlockHeader)     // if we can't split to the right
+            alignedMemHeader + allocatedBlockAndHeaderSize + (HEADER_SIZE + SMALLEST_BLOCK_SIZE) >= nextBlockHeader)     // if we can't split to the right
         {
             currentBlockHeader = nextBlockHeader;
             currentBlockMem = currentBlockHeader + HEADER_SIZE;
@@ -72,24 +76,26 @@ void* ImplicitFreeListAllocator::allocate(size_t size, size_t alignment)
             continue;
         }
 
-        if (alignedMem == currentBlockMem)
+        if (alignedMemHeader == currentBlockHeader)
         {
             setBlockSize(alignedMemHeader, size);
             setBlockAllocated(alignedMemHeader, true);
 
             // split to the right
-            setBlockSize(alignedMem + size, currentBlockSize - size - HEADER_SIZE);
+            setBlockSize(alignedMemHeader + allocatedBlockAndHeaderSize, currentBlockSize - size - HEADER_SIZE);
 
-            return alignedMem;
+            return alignedMemHeader + HEADER_SIZE;
         }
 
-        // split the block
-        setBlockSize(currentBlockHeader, alignedMemHeader - currentBlockMem);
+        // set the left block
+        setBlockSize(currentBlockHeader, alignedMemHeader - currentBlockHeader - HEADER_SIZE);
 
+        // set this block
         setBlockSize(alignedMemHeader, size);
         setBlockAllocated(alignedMemHeader, true);
-                
-        setBlockSize(alignedMem + size, currentBlockSize - blockSize(currentBlockHeader) - HEADER_SIZE - size - HEADER_SIZE);        
+
+        // set the right block
+        setBlockSize(alignedMemHeader + allocatedBlockAndHeaderSize, currentBlockSize - blockSize(currentBlockHeader) - allocatedBlockAndHeaderSize - HEADER_SIZE);
 
         return alignedMem;
     }

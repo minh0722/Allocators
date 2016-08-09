@@ -3,7 +3,7 @@
 /*
     This allocator uses first-fit to find a free block
     and it uses only 1 header in each block, so free is linear.
-    All allocation request are aligned on even alignment and
+    All allocation request must be aligned on even alignment and
     all block sizes are even (due to all blocks are aligned to even addresses).
     The header is 64 bit size and the LSB is used for free/allocated
     flag. The block size is the header with the LSB cleared to 0.
