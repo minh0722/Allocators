@@ -2,7 +2,7 @@
 
 struct Deleter
 {
-    void (*del)(void* ptr);
+    void (*cleanup)(void* ptr);
     Deleter* nextDeleter;
 };
 
