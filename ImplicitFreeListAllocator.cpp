@@ -105,7 +105,6 @@ void* ImplicitFreeListAllocator::allocate(size_t size, size_t alignment)
 
 void ImplicitFreeListAllocator::free(void * ptr)
 {
-    cout << "free" << endl;
     if (!ptr)
     {
         return;
@@ -154,7 +153,6 @@ void ImplicitFreeListAllocator::free(void * ptr)
 template <typename T>
 void ImplicitFreeListAllocator::free(void* ptr)
 {
-    cout << "template free" << endl;
     if (!ptr)
     {
         return;

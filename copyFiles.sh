@@ -6,4 +6,8 @@ $FOLDER\\ImplicitFreeListAllocator.cpp \
 $FOLDER\\ExplicitFreeListAllocator.h \
 $FOLDER\\ExplicitFreeListAllocator.cpp \
 $FOLDER\\FrameAllocator.h \
-$FOLDER\\FrameAllocator.cpp .
+$FOLDER\\FrameAllocator.cpp \
+$FOLDER\\IntrusiveLinkedList.h \
+$FOLDER\\IntrusiveLinkedList.cpp \
+$FOLDER\\SegregatedListAllocator.h \
+$FOLDER\\SegregatedListAllocator.cpp .
