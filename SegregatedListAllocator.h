@@ -22,7 +22,13 @@ public:
     void allocate(size_t size);
 
 private:
+    /* @brief find the list that has blocks of size blockSize
+    * @return list of blocks with size blockSize, nullptr if not found or list has no free block
+    */
+    Header* findList(size_t blockSize);
+
+private:
     void* m_mem;
     void* m_end;
-    std::vector<std::pair<size_t,Header*>> m_segList;
+    std::vector<std::pair<size_t, IntrusiveLinkedListNode<Header>>> m_segList;
 };
