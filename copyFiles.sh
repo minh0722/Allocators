@@ -1,12 +1,12 @@
-FOLDER=F:\\playground\\assassin-playground\\ctsvetkov\\minh_nguyen\\Allocators\\Allocators
+FOLDER=F:/playground/assassin-playground/ctsvetkov/minh_nguyen/Allocators/Allocators
 
-HEADER_FOLDER=.\\include
-SRC_FOLDER=.\\src
+HEADER_FOLDER=./include
+SRC_FOLDER=./src
 
-cp $FOLDER\\*.h $HEADER_FOLDER
-cp $FOLDER\\*.cpp $SRC_FOLDER
+cp $FOLDER/*.h $HEADER_FOLDER
+cp $FOLDER/*.cpp $SRC_FOLDER
 
-'
+: '
 cp \
 $FOLDER\\ImplicitFreeListAllocator.h \
 $FOLDER\\ImplicitFreeListAllocator.cpp \
