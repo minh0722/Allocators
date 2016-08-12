@@ -18,9 +18,13 @@ public:
     void setOwner(T* owner);
     T* getOwner();
     
+    bool isEmpty();
+
+    T* next();
+
 private:
-    IntrusiveLinkedListNode* next;
-    IntrusiveLinkedListNode* prev;
+    IntrusiveLinkedListNode* nextNode;
+    IntrusiveLinkedListNode* prevNode;
     IntrusiveLinkedListNode* head;
     T* owner;
 };
@@ -54,7 +58,7 @@ private:
 
 template <typename T>
 IntrusiveLinkedListNode<T>::IntrusiveLinkedListNode() :
-    next(this), prev(this),
+    nextNode(this), prevNode(this),
     head(this), owner(nullptr)
 {
 }
@@ -81,32 +85,34 @@ void IntrusiveLinkedListNode<T>::insertBefore(IntrusiveLinkedListNode<T>* node)
 {
     remove();
 
-    prev = node->prev;
-    next = node;
+    prevNode = node->prevNode;
+    nextNode = node;
 
-    node->prev->next = this;
-    node->prev = this;
+    node->prevNode->nextNode = this;
+    node->prevNode = this;
     head = node->head;
 }
 
 template<typename T>
 void IntrusiveLinkedListNode<T>::insertAfter(IntrusiveLinkedListNode<T>* node)
 {
-    prev = node;
-    next = node->next;
-    node->next->prev = this;
-    node->next = this;
+    remove();
+
+    prevNode = node;
+    nextNode = node->nextNode;
+    node->nextNode->prevNode = this;
+    node->nextNode = this;
     head = node->head;
 }
 
 template<typename T>
 void IntrusiveLinkedListNode<T>::remove()
 {
-    prev->next = next;
-    next->prev = prev;
+    prevNode->nextNode = nextNode;
+    nextNode->prevNode = prevNode;
 
-    next = this;
-    prev = this;
+    nextNode = this;
+    prevNode = this;
     head = this;
 }
 
@@ -120,4 +126,21 @@ template<typename T>
 inline T * IntrusiveLinkedListNode<T>::getOwner()
 {
     return owner;
+}
+
+template<typename T>
+inline bool IntrusiveLinkedListNode<T>::isEmpty()
+{
+    return head->nextNode != head;
+}
+
+template<typename T>
+inline T* IntrusiveLinkedListNode<T>::next()
+{
+    if (isEmpty())
+    {
+        return nullptr;
+    }
+
+    return nextNode->getOwner();
 }
