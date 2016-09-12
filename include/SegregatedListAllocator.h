@@ -20,6 +20,7 @@ public:
     ~SegregatedListAllocator();
 
     void* allocate(size_t size);
+    void free(void* ptr);
 
 private:
     /** 
@@ -51,5 +52,7 @@ private:
 private:
     void* m_mem;
     void* m_end;
-    std::vector<std::pair<size_t, Header>> m_segList;
+
+    // std::list instead of vector?
+    std::vector<std::pair<size_t, Header*>> m_segList;
 };

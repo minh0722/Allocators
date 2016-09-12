@@ -9,7 +9,7 @@ SegregatedListAllocator::SegregatedListAllocator(size_t size)
 {
     align(size, 2);
 
-    uint8_t* mem = (uint8_t*)malloc(size);
+    uint8_t* mem = (uint8_t*)::operator new(size, std::nothrow);
 
     if (!mem)
     {
@@ -26,16 +26,19 @@ SegregatedListAllocator::SegregatedListAllocator(size_t size)
     new(header) Header(blockSize/*, blockMem*/);
 
     /// create first list with one root
-    m_segList.push_back(make_pair(blockSize, Header()));
+    m_segList.emplace_back(make_pair(blockSize, new Header()));
     
     /// insert header into the list
-    header->node.insertAfter(&m_segList[0].second.node);
+    header->node.insertAfter(&m_segList[0].second->node);
 }
 
 
 SegregatedListAllocator::~SegregatedListAllocator()
 {
     ::free(m_mem);
+
+    for (auto& freeList : m_segList)
+        delete freeList.second;
 }
 
 void* SegregatedListAllocator::allocate(size_t size)
@@ -65,12 +68,17 @@ void* SegregatedListAllocator::allocate(size_t size)
     return searchForFreeBlockInLists(freeListIndex + 1, size);    
 }
 
+void SegregatedListAllocator::free(void* ptr)
+{
+    
+}
+
 std::pair<size_t, SegregatedListAllocator::Header*> SegregatedListAllocator::findList(size_t blockSize)
 {
     for (size_t i = 0; i < m_segList.size(); ++i)
     {
         if (m_segList[i].first == blockSize)
-            return make_pair(i, &m_segList[i].second);
+            return make_pair(i, m_segList[i].second);
     }
 
     return make_pair(-1, nullptr);
@@ -83,7 +91,7 @@ SegregatedListAllocator::Header* SegregatedListAllocator::findFreeBlock(Header* 
         return nullptr;
     }
 
-    return freeList->node.next();
+    return freeList->node.nextOwner();
 }
 
 SegregatedListAllocator::Header* SegregatedListAllocator::searchForFreeBlockInLists(size_t startIndex, size_t blockSize)
@@ -92,10 +100,10 @@ SegregatedListAllocator::Header* SegregatedListAllocator::searchForFreeBlockInLi
 
     size_t minimumBlockSize = blockSize + sizeof(Header) + 2;
 
-    for (size_t i = startIndex; i < m_segList.size(); ++i)
+    for (auto& segList : m_segList)
     {
-        size_t listBlockSize = m_segList[i].first;
-        Header* listHead = &m_segList[i].second;
+        size_t listBlockSize = segList.first;
+        Header* listHead = segList.second;
 
         if (listBlockSize >= minimumBlockSize)
         {
@@ -113,12 +121,11 @@ SegregatedListAllocator::Header* SegregatedListAllocator::searchForFreeBlockInLi
             Header* splittedBlock = (Header*)((uint8_t*)(freeBlock + 1) + blockSize);
             size_t splittedBlockSize = listBlockSize - blockSize - sizeof(Header);
             new(splittedBlock) Header(splittedBlockSize);
-            // insert the splitted block into the appropriate list
 
-            // set the free block size and insert into appropriate list
+            // set the free block size
             new(freeBlock) Header(blockSize);
 
-            insertBlockInAppropriateList(freeBlock);
+            // insert the splitted block into the appropriate list
             insertBlockInAppropriateList(splittedBlock);
 
             return freeBlock + 1;
@@ -143,20 +150,23 @@ void SegregatedListAllocator::insertBlockInAppropriateList(Header* blockHeader)
     }
     else
     {
-        // make new list
-        m_segList.emplace_back(make_pair(blockSize, Header()));
-        m_segList[m_segList.size() - 1].second.node.addToEnd(&blockHeader->node);
+        /// make new list
+        m_segList.emplace_back(make_pair(blockSize, new Header()));
+        //m_segList.back().second->node.addToEnd(&blockHeader->node);
+        blockHeader->node.addToEnd(&m_segList.back().second->node);
     }
 }
 
 SegregatedListAllocator::Header::Header()
 {
     blockSize = 0;
+    node.setOwner(this);
     ///blockMem = nullptr;
 }
 
 SegregatedListAllocator::Header::Header(size_t size/*, void * mem*/)
 {
     blockSize = size;
+    node.setOwner(this);
     ///blockMem = mem;
 }
