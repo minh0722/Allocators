@@ -64,13 +64,31 @@ void* SegregatedListAllocator::allocate(size_t size)
         }
     }
     
-    /// if can't find free block, look in the next lists and split
-    return searchForFreeBlockInLists(freeListIndex + 1, size);    
+    /// if can't find free block, look in other lists and split
+    return searchForFreeBlockInLists(0, size);    
 }
 
 void SegregatedListAllocator::free(void* ptr)
 {
-    
+    Header* blockHeader = (Header*)((uint8_t*)ptr - sizeof(Header));
+
+    size_t blockSize = blockHeader->blockSize;
+    IntrusiveLinkedListNode<Header>* node = &blockHeader->node;
+
+    /// search for free list of the same size
+    for (auto& freeList : m_segList)
+    {
+        if (freeList.first == blockSize)
+        {
+            freeList.second->node.addToEnd(node);
+            return;
+        }
+    }
+
+    /// create new free list
+    m_segList.emplace_back(make_pair(blockSize, new Header()));
+    blockHeader->node.addToEnd(&m_segList.back().second->node);
+
 }
 
 std::pair<size_t, SegregatedListAllocator::Header*> SegregatedListAllocator::findList(size_t blockSize)
@@ -114,18 +132,18 @@ SegregatedListAllocator::Header* SegregatedListAllocator::searchForFreeBlockInLi
                 continue;
             }
 
-            // remove the block from current list
+            /// remove the block from current list
             freeBlock->node.remove();
 
-            // split the block
+            /// split the block
             Header* splittedBlock = (Header*)((uint8_t*)(freeBlock + 1) + blockSize);
             size_t splittedBlockSize = listBlockSize - blockSize - sizeof(Header);
             new(splittedBlock) Header(splittedBlockSize);
 
-            // set the free block size
+            /// set the free block size
             new(freeBlock) Header(blockSize);
 
-            // insert the splitted block into the appropriate list
+            /// insert the splitted block into the appropriate list
             insertBlockInAppropriateList(splittedBlock);
 
             return freeBlock + 1;
@@ -139,7 +157,7 @@ void SegregatedListAllocator::insertBlockInAppropriateList(Header* blockHeader)
 {
     size_t blockSize = blockHeader->blockSize;
 
-    // find the list with blocks of the same size
+    /// find the list with blocks of the same size
     std::pair<size_t, Header*> listLocation = findList(blockSize);
 
     Header* appropriateList = listLocation.second;
@@ -152,7 +170,6 @@ void SegregatedListAllocator::insertBlockInAppropriateList(Header* blockHeader)
     {
         /// make new list
         m_segList.emplace_back(make_pair(blockSize, new Header()));
-        //m_segList.back().second->node.addToEnd(&blockHeader->node);
         blockHeader->node.addToEnd(&m_segList.back().second->node);
     }
 }
