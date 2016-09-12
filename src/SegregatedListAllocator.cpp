@@ -80,7 +80,8 @@ void SegregatedListAllocator::free(void* ptr)
     {
         if (freeList.first == blockSize)
         {
-            freeList.second->node.addToEnd(node);
+            //freeList.second->node.addToEnd(node);
+            node->addToEnd(&freeList.second->node);
             return;
         }
     }
