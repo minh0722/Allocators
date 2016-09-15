@@ -58,6 +58,11 @@ void PageBlock::free(void* ptr)
     ++m_freedBlocksCount;
 }
 
+uint16_t PageBlock::getSizeClass() const
+{
+    return m_sizeOfEachBlocks;
+}
+
 uint16_t PageBlock::convertToBlocksCount(size_t bytes)
 {
     return static_cast<uint16_t>(bytes / m_sizeOfEachBlocks);

@@ -24,6 +24,19 @@ namespace
         return ((size + alignment - 1) / alignment) * alignment;
     }
 
+    uint32_t alignPowerOfTwo(uint32_t num)
+    {
+        --num;
+        num |= num >> 1;
+        num |= num >> 2;
+        num |= num >> 4;
+        num |= num >> 8;
+        num |= num >> 16;
+        ++num;
+
+        return num;
+    }
+
     /* 
     @brief align current memory to alignment so that the header size is fitted before it
     @return memory location of header so that the memory after it is aligned to alignment

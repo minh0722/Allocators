@@ -40,6 +40,11 @@ struct BibopTag
         return m_TypeDisposition & 0x7f;
     }
 
+    bool isLargePageBlock() const
+    {
+        return getType() == type::large;
+    }
+
     /// encoding of
     /// page block type - 1 bit
     /// offset of the page - 7 bits
@@ -55,8 +60,8 @@ public:
 
     PageBlock* getPageBlock(const void* pointer);
 
-private:
     BibopTag getBibopTag(const void* pointer);
+private:
 
     PageBlock* getPageBlock(const void* pointer, BibopTag pageBlockTagOfPointer);
 

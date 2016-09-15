@@ -42,6 +42,8 @@ public:
     void* allocate();
     void free(void* ptr);
 
+    uint16_t getSizeClass() const;
+    
     PageBlock() = delete;
     PageBlock(const PageBlock&) = delete;
     PageBlock& operator=(const PageBlock&) = delete;
