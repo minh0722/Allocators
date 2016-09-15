@@ -7,7 +7,7 @@ void BibopTable::registerSmallPageBlocks(uintptr_t pageBlockHeader, uintptr_t pa
     const uint32_t pageSizeLog2 = log2_c<pageSize>::value;
 
     const uint32_t tagStartingIndex = getTagIndex(pageBlock);
-    uint8_t pageBlockStartingDisposition = static_cast<uint8_t>((pageBlock - pageBlockHeader) >> pageSizeLog2);
+    uint8_t pageBlockStartingDisposition = static_cast<uint8_t>((pageBlock - pageBlockHeader) >> pageSizeLog2);     // should be between [0..127]
     
     for (uint32_t i = tagStartingIndex; i < tagStartingIndex + pageBlocksCount; ++i, ++pageBlockStartingDisposition)
     {

@@ -29,14 +29,14 @@ void* BibopAllocator::allocate(uint32_t size)
     {
         size = static_cast<uint32_t>(align(size + sizeof(PageBlock), PAGE_BLOCK_SIZE));
 
-        uint8_t* mem = new uint8_t[size];
-        uintptr_t pageBlockStart = reinterpret_cast<uintptr_t>(mem + sizeof(PageBlock));
+        PageBlock* newPageBlock = createNewPageBlock(size, size);
+        m_pageBlocks.push_back(newPageBlock);
+        
+        uintptr_t firstBlock = reinterpret_cast<uintptr_t>(newPageBlock + 1);
+        m_bibopTable.registerBigPageBlocks(firstBlock, 1);
 
-        new(mem) PageBlock(pageBlockStart, size, size);
 
-        m_bibopTable.registerBigPageBlocks(pageBlockStart, 1);
-
-        return reinterpret_cast<void*>(pageBlockStart);
+        return reinterpret_cast<void*>(newPageBlock + 1);
     }
     
     /// each size class differs from each other by 4 bytes
@@ -53,26 +53,34 @@ void* BibopAllocator::allocate(uint32_t size)
             if (!result)
             {
                 /// create another page of this size class
-                PageBlock* newPageBlock = createNewPageBlock(size);
+                PageBlock* newPageBlock = createNewPageBlock(size, PAGE_BLOCK_SIZE);
+
+                uintptr_t firstBlock = reinterpret_cast<uintptr_t>(newPageBlock + 1);
+                m_bibopTable.registerSmallPageBlocks(
+                    reinterpret_cast<uintptr_t>(newPageBlock),
+                    firstBlock,
+                    size / PAGE_BLOCK_SIZE);
 
                 /// put the new page block to front of the list
 
 
-                result = newPageBlock->allocate();
+                return newPageBlock->allocate();
             }
-
-            break;
-        }
-        else
-        {
-            /// create new page block
-            PageBlock* newPageBlock = createNewPageBlock(size);
-            
-            result = newPageBlock->allocate();
         }
     }
 
-    return result;
+    /// create new page block
+    PageBlock* newPageBlock = createNewPageBlock(size, PAGE_BLOCK_SIZE);
+    
+    uintptr_t firstBlock = reinterpret_cast<uintptr_t>(newPageBlock + 1);
+    m_bibopTable.registerSmallPageBlocks(
+        reinterpret_cast<uintptr_t>(newPageBlock),
+        firstBlock,
+        size / PAGE_BLOCK_SIZE);
+
+    m_pageBlocks.push_back(newPageBlock);
+    
+    return newPageBlock->allocate();
 }
 
 void BibopAllocator::free(void * pointer)
@@ -91,13 +99,13 @@ void BibopAllocator::free(void * pointer)
 
 }
 
-PageBlock* BibopAllocator::createNewPageBlock(uint32_t sizeClass)
+PageBlock* BibopAllocator::createNewPageBlock(uint32_t sizeClass, uint32_t blockSize)
 {
-    uint8_t* mem = new uint8_t[PAGE_BLOCK_SIZE];
+    uint8_t* mem = new uint8_t[blockSize];
     uintptr_t pageBlockStart = reinterpret_cast<uintptr_t>(mem + sizeof(PageBlock));
 
-    new(mem) PageBlock(pageBlockStart, sizeClass, PAGE_BLOCK_SIZE);
-    m_bibopTable.registerSmallPageBlocks(reinterpret_cast<uintptr_t>(mem), pageBlockStart, PAGE_BLOCK_SIZE / sizeClass);
+    new(mem) PageBlock(pageBlockStart, sizeClass, blockSize);
+    //m_bibopTable.registerSmallPageBlocks(reinterpret_cast<uintptr_t>(mem), pageBlockStart, blockSize / sizeClass);
 
     return reinterpret_cast<PageBlock*>(mem);
 }

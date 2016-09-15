@@ -8,6 +8,35 @@ public:
     LinkedListNode() : 
         m_next(nullptr), m_prev(nullptr) {}
     
+    void remove()
+    {
+        if (m_next)
+        {
+            m_next->setPrev(m_prev);
+        }
+        if (m_prev)
+        {
+            m_prev->setNext(m_next);
+        }
+    }
+
+    void insertAfter(LinkedListNode<T>* node)
+    {
+        remove();
+
+        if (node->getNext())
+        {
+            setNext(node->getNext());
+        }
+        else
+        {
+            setNext(node);
+        }
+
+        node->setNext(this);
+        
+    }
+
     T* getNext()
     {
         return m_next;
@@ -43,6 +72,8 @@ public:
     void free(void* ptr);
 
     uint16_t getSizeClass() const;
+
+    bool hasFreeBlock() const;
     
     PageBlock() = delete;
     PageBlock(const PageBlock&) = delete;

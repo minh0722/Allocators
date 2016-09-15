@@ -17,7 +17,7 @@ public:
     void free(void* pointer);
 
 private:
-    PageBlock* createNewPageBlock(uint32_t sizeClass);
+    PageBlock* createNewPageBlock(uint32_t sizeClass, uint32_t blockSize);
 
 private:
     BibopTable m_bibopTable;
