@@ -73,7 +73,7 @@ void SegregatedListAllocator::free(void* ptr)
     Header* blockHeader = (Header*)((uint8_t*)ptr - sizeof(Header));
 
     size_t blockSize = blockHeader->blockSize;
-    IntrusiveLinkedListNode<Header>* node = &blockHeader->node;
+    CircularIntrusiveLinkedListNode<Header>* node = &blockHeader->node;
 
     /// search for free list of the same size
     for (auto& freeList : m_segList)

@@ -32,4 +32,16 @@ namespace
     {
         return align(currentMemory + headerSize, alignment) - headerSize;
     }
+
+    template<uint32_t x>
+    struct log2_c
+    {
+        static const uint32_t value = 1 + log2_c< x / 2>::value;
+    };
+
+    template<>
+    struct log2_c<1>
+    {
+        static const uint32_t value = 0;
+    };
 }

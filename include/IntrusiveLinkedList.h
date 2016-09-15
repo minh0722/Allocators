@@ -1,20 +1,20 @@
 #pragma once
 
 template <typename T>
-class IntrusiveLinkedListNode
+class CircularIntrusiveLinkedListNode
 {
 public:
-    IntrusiveLinkedListNode();
-    ~IntrusiveLinkedListNode();
+    CircularIntrusiveLinkedListNode();
+    ~CircularIntrusiveLinkedListNode();
 
-    void addToFront(IntrusiveLinkedListNode* node);
-    void addToEnd(IntrusiveLinkedListNode* node);
+    void addToFront(CircularIntrusiveLinkedListNode* node);
+    void addToEnd(CircularIntrusiveLinkedListNode* node);
 
-    void insertBefore(IntrusiveLinkedListNode* node);
-    void insertAfter(IntrusiveLinkedListNode* node);
+    void insertBefore(CircularIntrusiveLinkedListNode* node);
+    void insertAfter(CircularIntrusiveLinkedListNode* node);
 
-    IntrusiveLinkedListNode* getNextNode();
-    IntrusiveLinkedListNode* getPrevNode();
+    CircularIntrusiveLinkedListNode* getNextNode();
+    CircularIntrusiveLinkedListNode* getPrevNode();
     
     void remove();
 
@@ -26,19 +26,19 @@ public:
     T* nextOwner();
 
 private:
-    IntrusiveLinkedListNode* nextNode;
-    IntrusiveLinkedListNode* prevNode;
-    IntrusiveLinkedListNode* head;
+    CircularIntrusiveLinkedListNode* nextNode;
+    CircularIntrusiveLinkedListNode* prevNode;
+    CircularIntrusiveLinkedListNode* head;
     T* owner;
 };
 
 //template <typename T>
 //struct ListNode
 //{
-//    ListNode() : next(this), prev(this), owner(nullptr) {}
+//    ListNode() : m_next(this), m_prev(this), owner(nullptr) {}
 //
-//    ListNode* next;
-//    ListNode* prev;
+//    ListNode* m_next;
+//    ListNode* m_prev;
 //    T* owner;
 //};
 //
@@ -60,31 +60,31 @@ private:
 
 
 template <typename T>
-IntrusiveLinkedListNode<T>::IntrusiveLinkedListNode() :
+CircularIntrusiveLinkedListNode<T>::CircularIntrusiveLinkedListNode() :
     nextNode(this), prevNode(this),
     head(this), owner(nullptr)
 {
 }
 
 template <typename T>
-IntrusiveLinkedListNode<T>::~IntrusiveLinkedListNode()
+CircularIntrusiveLinkedListNode<T>::~CircularIntrusiveLinkedListNode()
 {
 }
 
 template<typename T>
-void IntrusiveLinkedListNode<T>::addToFront(IntrusiveLinkedListNode* node)
+void CircularIntrusiveLinkedListNode<T>::addToFront(CircularIntrusiveLinkedListNode* node)
 {
     insertAfter(node->head);
 }
 
 template<typename T>
-void IntrusiveLinkedListNode<T>::addToEnd(IntrusiveLinkedListNode* node)
+void CircularIntrusiveLinkedListNode<T>::addToEnd(CircularIntrusiveLinkedListNode* node)
 {
     insertBefore(node->head);
 }
 
 template<typename T>
-void IntrusiveLinkedListNode<T>::insertBefore(IntrusiveLinkedListNode<T>* node)
+void CircularIntrusiveLinkedListNode<T>::insertBefore(CircularIntrusiveLinkedListNode<T>* node)
 {
     remove();
 
@@ -97,7 +97,7 @@ void IntrusiveLinkedListNode<T>::insertBefore(IntrusiveLinkedListNode<T>* node)
 }
 
 template<typename T>
-void IntrusiveLinkedListNode<T>::insertAfter(IntrusiveLinkedListNode<T>* node)
+void CircularIntrusiveLinkedListNode<T>::insertAfter(CircularIntrusiveLinkedListNode<T>* node)
 {
     remove();
 
@@ -109,7 +109,7 @@ void IntrusiveLinkedListNode<T>::insertAfter(IntrusiveLinkedListNode<T>* node)
 }
 
 template<typename T>
-inline IntrusiveLinkedListNode<T>* IntrusiveLinkedListNode<T>::getNextNode()
+inline CircularIntrusiveLinkedListNode<T>* CircularIntrusiveLinkedListNode<T>::getNextNode()
 {
     if (nextNode == head)
     {
@@ -120,7 +120,7 @@ inline IntrusiveLinkedListNode<T>* IntrusiveLinkedListNode<T>::getNextNode()
 }
 
 template<typename T>
-inline IntrusiveLinkedListNode<T>* IntrusiveLinkedListNode<T>::getPrevNode()
+inline CircularIntrusiveLinkedListNode<T>* CircularIntrusiveLinkedListNode<T>::getPrevNode()
 {
     if (prevNode == head)
     {
@@ -131,7 +131,7 @@ inline IntrusiveLinkedListNode<T>* IntrusiveLinkedListNode<T>::getPrevNode()
 }
 
 template<typename T>
-void IntrusiveLinkedListNode<T>::remove()
+void CircularIntrusiveLinkedListNode<T>::remove()
 {
     prevNode->nextNode = nextNode;
     nextNode->prevNode = prevNode;
@@ -142,25 +142,25 @@ void IntrusiveLinkedListNode<T>::remove()
 }
 
 template<typename T>
-void IntrusiveLinkedListNode<T>::setOwner(T* owner)
+void CircularIntrusiveLinkedListNode<T>::setOwner(T* owner)
 {
     this->owner = owner;
 }
 
 template<typename T>
-inline T * IntrusiveLinkedListNode<T>::getOwner()
+inline T * CircularIntrusiveLinkedListNode<T>::getOwner()
 {
     return owner;
 }
 
 template<typename T>
-inline bool IntrusiveLinkedListNode<T>::isEmpty()
+inline bool CircularIntrusiveLinkedListNode<T>::isEmpty()
 {
     return head->nextNode == head;
 }
 
 template<typename T>
-inline T* IntrusiveLinkedListNode<T>::nextOwner()
+inline T* CircularIntrusiveLinkedListNode<T>::nextOwner()
 {
     if (isEmpty())
     {

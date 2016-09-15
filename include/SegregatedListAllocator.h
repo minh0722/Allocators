@@ -10,7 +10,7 @@ class SegregatedListAllocator
         Header();
         Header(size_t size/*, void* mem*/);
 
-        IntrusiveLinkedListNode<Header> node;
+        CircularIntrusiveLinkedListNode<Header> node;
         size_t blockSize;
         ///void* blockMem;
     };

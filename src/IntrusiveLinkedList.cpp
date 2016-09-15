@@ -13,19 +13,19 @@
 //template <typename T>
 //void IntrusiveLinkedList<T>::insertBefore(ListNode<T>* node, ListNode<T>* rightNode)
 //{
-//    node->next = rightNode;
-//    node->prev = rightNode->prev;
-//    node->prev->next = node;
-//    rightNode->prev = node;
+//    node->m_next = rightNode;
+//    node->m_prev = rightNode->m_prev;
+//    node->m_prev->m_next = node;
+//    rightNode->m_prev = node;
 //}
 //
 //template <typename T>
 //void IntrusiveLinkedList<T>::insertAfter(ListNode<T>* node, ListNode<T>* leftNode)
 //{
-//    node->prev = leftNode;
-//    node->next = leftNode->next;
-//    node->next->prev = node;
-//    leftNode->next = node;
+//    node->m_prev = leftNode;
+//    node->m_next = leftNode->m_next;
+//    node->m_next->m_prev = node;
+//    leftNode->m_next = node;
 //}
 //
 //template <typename T>
@@ -41,14 +41,14 @@
 //}
 
 //template <typename T>
-//IntrusiveLinkedListNode<T>::IntrusiveLinkedListNode() : 
-//    next(this), prev(this), 
+//CircularIntrusiveLinkedListNode<T>::CircularIntrusiveLinkedListNode() : 
+//    m_next(this), m_prev(this), 
 //    /*head(this),*/ owner(nullptr)
 //{
 //}
 //
 //template <typename T>
-//IntrusiveLinkedListNode<T>::~IntrusiveLinkedListNode()
+//CircularIntrusiveLinkedListNode<T>::~CircularIntrusiveLinkedListNode()
 //{
 //}
 //
@@ -65,41 +65,41 @@
 ////}
 //
 //template<typename T>
-//void IntrusiveLinkedListNode<T>::insertBefore(IntrusiveLinkedListNode<T>* node)
+//void CircularIntrusiveLinkedListNode<T>::insertBefore(CircularIntrusiveLinkedListNode<T>* node)
 //{
 //    remove();
 //
-//    prev = node->prev;
-//    next = node;
+//    m_prev = node->m_prev;
+//    m_next = node;
 //
-//    node->prev->next = this;
-//    node->prev = this;
+//    node->m_prev->m_next = this;
+//    node->m_prev = this;
 //    //head = node->head;
 //}
 //
 //template<typename T>
-//void IntrusiveLinkedListNode<T>::insertAfter(IntrusiveLinkedListNode<T>* node)
+//void CircularIntrusiveLinkedListNode<T>::insertAfter(CircularIntrusiveLinkedListNode<T>* node)
 //{
-//    prev = node;
-//    next = node->next;
-//    node->next->prev = this;
-//    node->next = this;
+//    m_prev = node;
+//    m_next = node->m_next;
+//    node->m_next->m_prev = this;
+//    node->m_next = this;
 //    //head = node->head;
 //}
 //
 //template<typename T>
-//void IntrusiveLinkedListNode<T>::remove()
+//void CircularIntrusiveLinkedListNode<T>::remove()
 //{
-//    prev->next = next;
-//    next->prev = prev;
+//    m_prev->m_next = m_next;
+//    m_next->m_prev = m_prev;
 //
-//    next = this;
-//    prev = this;
+//    m_next = this;
+//    m_prev = this;
 //    //head = this;
 //}
 //
 //template<typename T>
-//void IntrusiveLinkedListNode<T>::setOwner(T* owner)
+//void CircularIntrusiveLinkedListNode<T>::setOwner(T* owner)
 //{
 //    this->owner = owner;
 //}
