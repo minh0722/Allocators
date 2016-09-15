@@ -17,6 +17,9 @@ public:
     void free(void* pointer);
 
 private:
+    PageBlock* createNewPageBlock(uint32_t sizeClass);
+
+private:
     BibopTable m_bibopTable;
     std::vector<PageBlock*> m_pageBlocks;
 };

@@ -27,7 +27,7 @@ void* BibopAllocator::allocate(uint32_t size)
 
     if (size > MAX_ALLOCATION_SIZE)
     {
-        size = align(size + sizeof(PageBlock), PAGE_BLOCK_SIZE);
+        size = static_cast<uint32_t>(align(size + sizeof(PageBlock), PAGE_BLOCK_SIZE));
 
         uint8_t* mem = new uint8_t[size];
         uintptr_t pageBlockStart = reinterpret_cast<uintptr_t>(mem + sizeof(PageBlock));
@@ -38,10 +38,9 @@ void* BibopAllocator::allocate(uint32_t size)
 
         return reinterpret_cast<void*>(pageBlockStart);
     }
-
-
+    
     /// each size class differs from each other by 4 bytes
-    size = align(size, DIFF_OF_SIZE_CLASS);
+    size = static_cast<uint32_t>(align(size, DIFF_OF_SIZE_CLASS));
     
     void* result = nullptr;
 
@@ -50,17 +49,26 @@ void* BibopAllocator::allocate(uint32_t size)
         if (pageBlock->getSizeClass() == size)
         {
             result = pageBlock->allocate();
+
+            if (!result)
+            {
+                /// create another page of this size class
+                PageBlock* newPageBlock = createNewPageBlock(size);
+
+                /// put the new page block to front of the list
+
+
+                result = newPageBlock->allocate();
+            }
+
             break;
         }
         else
         {
             /// create new page block
-            uint8_t* mem = new uint8_t[PAGE_BLOCK_SIZE];
-            uintptr_t pageBlockStart = reinterpret_cast<uintptr_t>(mem + sizeof(PageBlock));
-
-            new(mem) PageBlock(pageBlockStart, size, PAGE_BLOCK_SIZE);
-
-            m_bibopTable.registerSmallPageBlocks(reinterpret_cast<uintptr_t>(mem), pageBlockStart, PAGE_BLOCK_SIZE / size);
+            PageBlock* newPageBlock = createNewPageBlock(size);
+            
+            result = newPageBlock->allocate();
         }
     }
 
@@ -81,4 +89,15 @@ void BibopAllocator::free(void * pointer)
         pageBlock->free(pointer);
     }
 
+}
+
+PageBlock* BibopAllocator::createNewPageBlock(uint32_t sizeClass)
+{
+    uint8_t* mem = new uint8_t[PAGE_BLOCK_SIZE];
+    uintptr_t pageBlockStart = reinterpret_cast<uintptr_t>(mem + sizeof(PageBlock));
+
+    new(mem) PageBlock(pageBlockStart, sizeClass, PAGE_BLOCK_SIZE);
+    m_bibopTable.registerSmallPageBlocks(reinterpret_cast<uintptr_t>(mem), pageBlockStart, PAGE_BLOCK_SIZE / sizeClass);
+
+    return reinterpret_cast<PageBlock*>(mem);
 }
