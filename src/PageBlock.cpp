@@ -8,6 +8,11 @@ PageBlock::PageBlock(uintptr_t memory, uint32_t sizeOfEachBlock, size_t memorySi
     m_freedBlocksCount = convertToBlocksCount(memorySize);
 }
 
+PageBlock::~PageBlock()
+{
+    delete reinterpret_cast<void*>(m_memory);
+}
+
 void* PageBlock::allocate()
 {
     void* mem = nullptr;

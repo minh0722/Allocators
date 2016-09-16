@@ -6,60 +6,64 @@ class LinkedListNode
 {
 public:
     LinkedListNode() : 
-        m_next(nullptr), m_prev(nullptr) {}
+        m_next(this), m_prev(this) {}
     
     void remove()
     {
-        if (m_next)
-        {
-            m_next->setPrev(m_prev);
-        }
-        if (m_prev)
-        {
-            m_prev->setNext(m_next);
-        }
+        m_next->setPrev(m_prev);
+        m_prev->setNext(m_next);
     }
 
-    void insertAfter(LinkedListNode<T>* node)
+    void insertAfter(T* node)
     {
         remove();
 
-        if (node->getNext())
-        {
-            setNext(node->getNext());
-        }
-        else
-        {
-            setNext(node);
-        }
+        setNext(node->getNext());
+        setPrev(node);
 
+        node->getNext()->setPrev(this);
         node->setNext(this);
-        
     }
 
-    T* getNext()
+    void insertBefore(T* node)
+    {
+        remove();
+
+        setPrev(node->getPrev());
+        setNext(node);
+
+        node->getPrev()->setNext(this);
+        node->setPrev(this);
+    }
+
+    T* getData() const
+    {
+        return static_cast<T*>(this);
+    }
+
+    LinkedListNode<T>* getNext()
     {
         return m_next;
     }
 
-    T* getPrev()
+    LinkedListNode<T>* getPrev()
     {
         return m_prev;
     }
 
-    void setNext(T* next)
+    void setNext(LinkedListNode<T>* next)
     {
         m_next = next;
     }
 
-    void setPrev(T* prev)
+    void setPrev(LinkedListNode<T>* prev)
     {
         m_prev = prev;
     }
 
 private:
-    T* m_next;
-    T* m_prev;
+    LinkedListNode<T>* m_next;
+    LinkedListNode<T>* m_prev;
 };
 
 __declspec(align(128))
@@ -67,6 +71,7 @@ class PageBlock : public LinkedListNode<PageBlock>
 {
 public:
     PageBlock(uintptr_t memory, uint32_t sizeOfEachBlock, size_t memorySize = 4096);
+    ~PageBlock();
 
     void* allocate();
     void free(void* ptr);

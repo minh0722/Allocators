@@ -11,9 +11,12 @@ BibopAllocator::BibopAllocator()
 {
 }
 
-
 BibopAllocator::~BibopAllocator()
 {
+    for (auto pageBlock : m_pageBlocks)
+    {
+        pageBlock->~PageBlock();
+    }
 }
 
 void* BibopAllocator::allocate(uint32_t size)
@@ -34,7 +37,6 @@ void* BibopAllocator::allocate(uint32_t size)
         
         uintptr_t firstBlock = reinterpret_cast<uintptr_t>(newPageBlock + 1);
         m_bibopTable.registerBigPageBlocks(firstBlock, 1);
-
 
         return reinterpret_cast<void*>(newPageBlock + 1);
     }
@@ -62,7 +64,7 @@ void* BibopAllocator::allocate(uint32_t size)
                     size / PAGE_BLOCK_SIZE);
 
                 /// put the new page block to front of the list
-
+                newPageBlock->insertBefore(pageBlock);
 
                 return newPageBlock->allocate();
             }
