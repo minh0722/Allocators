@@ -72,8 +72,8 @@ public:
     PageBlock& operator=(const PageBlock&) = delete;
 
 private:
-    uint16_t convertToBlocksCount(size_t bytes);
-    uint32_t convertToBytes(uint16_t blocks);
+    uint32_t convertToBlocksCount(uint32_t bytes);
+    uint32_t convertToBytes(int32_t blocks);
 
 private:
     uintptr_t m_memory;
@@ -85,7 +85,7 @@ private:
     int32_t m_currentFreedBlockOffset;
 
     /// offset of the start of the contiguous unallocated area from the start of the page in blocks
-    uint16_t m_currentUnallocatedOffset;
+    int32_t m_currentUnallocatedOffset;
 
 };
 

@@ -72,7 +72,7 @@ void* BibopAllocator::allocate(uint32_t size)
 
                 uintptr_t firstBlock = reinterpret_cast<uintptr_t>(newPageBlock + 1);
 
-                m_bibopTable->registerSmallPageBlocks(newPageBlock, firstBlock, newPageBlock->getFreeBlocksCount());
+                m_bibopTable->registerSmallPageBlocks(newPageBlock, firstBlock, PAGE_BLOCK_SIZE / PAGE_SIZE);
 
                 /// put the new page block to front of the list
                 newPageBlock->setNext(m_pageBlocks[i]);

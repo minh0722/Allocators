@@ -39,7 +39,7 @@ void* PageBlock::allocate()
 
         ++m_currentUnallocatedOffset;
 
-        if (convertToBytes(m_currentUnallocatedOffset) > m_memorySize)
+        if (convertToBytes(m_currentUnallocatedOffset) >= m_memorySize)
         {
             m_currentUnallocatedOffset = -1;
         }
@@ -77,13 +77,13 @@ bool PageBlock::hasFreeBlock() const
     return m_freeBlocksCount > 0;
 }
 
-uint16_t PageBlock::convertToBlocksCount(size_t bytes)
+uint32_t PageBlock::convertToBlocksCount(uint32_t bytes)
 {
-    return static_cast<uint16_t>(bytes / m_sizeOfEachBlocks);
+    return bytes / m_sizeOfEachBlocks;
 }
 
-uint32_t PageBlock::convertToBytes(uint16_t blocks)
+uint32_t PageBlock::convertToBytes(int32_t blocks)
 {
-    return static_cast<uintptr_t>(blocks * m_sizeOfEachBlocks);
+    return blocks * m_sizeOfEachBlocks;
 }
 
