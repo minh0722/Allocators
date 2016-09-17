@@ -6,6 +6,8 @@ class PageBlock;
 
 struct BibopTag
 {
+    BibopTag() : m_TypeDisposition(0) {}
+
     enum type
     {
         small = 0,
@@ -32,7 +34,7 @@ struct BibopTag
 
     type getType() const
     {
-        return static_cast<type>(m_TypeDisposition & (1 << 7));
+        return static_cast<type>(m_TypeDisposition >> 7);
     }
 
     uint8_t getDisposition() const
@@ -45,7 +47,6 @@ struct BibopTag
         return getType() == type::large;
     }
 
-    /// encoding of
     /// page block type - 1 bit
     /// offset of the page - 7 bits
     uint8_t m_TypeDisposition;
@@ -54,9 +55,15 @@ struct BibopTag
 class BibopTable
 {
 public:
-    void registerSmallPageBlocks(uintptr_t pageBlockHeader, uintptr_t pageBlock, size_t pageBlocksCount);
+    BibopTable(uintptr_t startingAddress);
+
+    void registerSmallPageBlocks(void* pageBlockAddress, uintptr_t firstBlock, size_t blocksCount);
+
+    void registerSmallPageBlocks(uintptr_t pageBlockAddress, uintptr_t firstBlock, size_t blocksCount);
     
-    void registerBigPageBlocks(uintptr_t pageBlock, size_t pageBlocksCount);
+    void registerBigPageBlocks(void* pointer, size_t pageBlocksCount);
+
+    void registerBigPageBlocks(uintptr_t pointer, size_t pageBlocksCount);
 
     PageBlock* getPageBlock(const void* pointer);
 
@@ -70,7 +77,7 @@ private:
     uint32_t getTagIndex(const uintptr_t pointer);
 
 private:
-    BibopTag m_BibopTags[1024 * 1024];
-    uintptr_t m_tableStartingAddress;
+    BibopTag m_bibopTags[1024 * 1024];
+    uintptr_t m_startingAddress;
 };
 

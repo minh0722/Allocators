@@ -1,16 +1,15 @@
 #include "PageBlock.h"
 
-PageBlock::PageBlock(uintptr_t memory, uint32_t sizeOfEachBlock, size_t memorySize) :
+PageBlock::PageBlock(uintptr_t memory, uint32_t memorySize, uint32_t sizeOfEachBlock) :
     m_memory(memory), m_sizeOfEachBlocks(sizeOfEachBlock),
     m_memorySize(memorySize),
     m_currentUnallocatedOffset(0), m_currentFreedBlockOffset(0)
 {
-    m_freedBlocksCount = convertToBlocksCount(memorySize);
+    m_freeBlocksCount = convertToBlocksCount(memorySize);
 }
 
 PageBlock::~PageBlock()
 {
-    delete reinterpret_cast<void*>(m_memory);
 }
 
 void* PageBlock::allocate()
@@ -20,11 +19,11 @@ void* PageBlock::allocate()
     if (m_currentFreedBlockOffset != 0)
     {
         /// allocate from freed blocks/holes
-        uint32_t offset = convertToBytes(m_currentFreedBlockOffset);
+        uint32_t offset = convertToBytes(m_currentFreedBlockOffset - 1);
         mem = reinterpret_cast<void*>(m_memory + offset);
 
         m_currentFreedBlockOffset = *reinterpret_cast<uint16_t*>(mem);
-        --m_freedBlocksCount;
+        --m_freeBlocksCount;
     }
     else
     {
@@ -45,7 +44,7 @@ void* PageBlock::allocate()
             m_currentUnallocatedOffset = -1;
         }
 
-        --m_freedBlocksCount;
+        --m_freeBlocksCount;
     }
 
     return mem;
@@ -59,8 +58,8 @@ void PageBlock::free(void* ptr)
 
     /// write the offset of the m_prev freed block
     *reinterpret_cast<uint16_t*>(pointer) = m_currentFreedBlockOffset;
-    m_currentFreedBlockOffset = convertToBlocksCount(offset);
-    ++m_freedBlocksCount;
+    m_currentFreedBlockOffset = convertToBlocksCount(offset) + 1;
+    ++m_freeBlocksCount;
 }
 
 uint16_t PageBlock::getSizeClass() const
@@ -68,9 +67,14 @@ uint16_t PageBlock::getSizeClass() const
     return m_sizeOfEachBlocks;
 }
 
+uint32_t PageBlock::getFreeBlocksCount() const
+{
+    return m_freeBlocksCount;
+}
+
 bool PageBlock::hasFreeBlock() const
 {
-    return m_freedBlocksCount > 0;
+    return m_freeBlocksCount > 0;
 }
 
 uint16_t PageBlock::convertToBlocksCount(size_t bytes)

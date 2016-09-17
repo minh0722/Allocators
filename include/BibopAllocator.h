@@ -19,8 +19,9 @@ public:
 private:
     PageBlock* createNewPageBlock(uint32_t sizeClass, uint32_t blockSize);
 
+    void destroyPageBlock(PageBlock* pageBlock);
 private:
-    BibopTable m_bibopTable;
+    BibopTable* m_bibopTable;
     std::vector<PageBlock*> m_pageBlocks;
 };
 
