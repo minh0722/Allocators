@@ -20,40 +20,6 @@ public:
         }
     }
 
-/*  
-    void insertAfter(T* node)
-    {
-        remove();
-
-        setPrev(node);
-        setNext(node->getNext());
-
-        node->setNext
-
-        //setNext(node->getNext());
-        //setPrev(node);
-
-        //node->getNext()->setPrev(this);
-        //node->setNext(this);
-    }
-
-    void insertBefore(T* node)
-    {
-        remove();
-
-        setPrev(node->getPrev());
-        setNext(node);
-
-        node->getPrev()->setNext(this);
-        node->setPrev(this);
-    }
-*/
-
-    T* getData() const
-    {
-        return static_cast<T*>(this);
-    }
-
     T* getNext()
     {
         return m_next;
@@ -82,7 +48,7 @@ private:
 /*
     Page blocks are 512KB blocks of memory, divided to smaller blocks, whose size depends on the type:
     1. If type is small, the blocks are 4KB
-    2. If type is big, the blocks are of size > 4KB
+    2. If type is big, the blocks are of size > 2KB
     
 */
 
