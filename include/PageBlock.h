@@ -18,6 +18,9 @@ public:
         {
             m_prev->setNext(m_next);
         }
+
+        m_next = nullptr;
+        m_prev = nullptr;
     }
 
     T* getNext()
