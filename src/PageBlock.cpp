@@ -1,8 +1,7 @@
 #include "PageBlock.h"
 
 PageBlock::PageBlock(uintptr_t memory, uint32_t memorySize, uint32_t sizeOfEachBlock) :
-    m_memory(memory), m_sizeOfEachBlocks(sizeOfEachBlock),
-    m_memorySize(memorySize),
+    m_memory(memory), m_memorySize(memorySize), m_sizeOfEachBlocks(sizeOfEachBlock),
     m_currentUnallocatedOffset(0), m_currentFreedBlockOffset(0)
 {
     m_freeBlocksCount = convertToBlocksCount(memorySize);

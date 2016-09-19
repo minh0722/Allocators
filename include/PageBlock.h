@@ -78,7 +78,7 @@ private:
 private:
     uintptr_t m_memory;
     uint32_t m_memorySize;
-    uint16_t m_sizeOfEachBlocks;
+    uint32_t m_sizeOfEachBlocks;
     uint32_t m_freeBlocksCount;
 
     /// offset of current freed block from the start of the page in blocks(caused by free)

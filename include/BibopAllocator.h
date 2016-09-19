@@ -19,6 +19,8 @@ public:
 private:
     PageBlock* createNewPageBlock(uint32_t sizeClass, uint32_t blockSize);
 
+    void* allocateBigBlock(uint32_t size);
+
     void destroyPageBlock(PageBlock* pageBlock);
 private:
     BibopTable* m_bibopTable;
