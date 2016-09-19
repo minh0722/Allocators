@@ -18,7 +18,7 @@ void BibopTable::registerSmallPageBlocks(uintptr_t pageBlockAddress, uintptr_t f
     const uint32_t pageSizeLog2 = log2_c<pageSize>::value;
 
     const uint32_t tagStartingIndex = getTagIndex(firstBlock);
-    uintptr_t pageBlockStartingDisposition = ((firstBlock - pageBlockAddress) >> pageSizeLog2);     // [0..127]
+    uintptr_t pageBlockStartingDisposition = ((firstBlock - pageBlockAddress - 1) >> pageSizeLog2);     // [0..127]
     
     for (uint32_t i = tagStartingIndex; i < tagStartingIndex + blocksCount; ++i, ++pageBlockStartingDisposition)
     {
@@ -55,7 +55,7 @@ PageBlock* BibopTable::getPageBlock(const void* pointer, BibopTag pointerBibopTa
     const uint32_t pageSizeLog2 = log2_c<pageSize>::value;
 
     uintptr_t pageIndex = reinterpret_cast<uintptr_t>(pointer) >> pageSizeLog2;
-    uintptr_t pageBlock = (pageIndex - pointerBibopTag.getDisposition()) << pageSizeLog2;
+    uintptr_t pageBlock = (pageIndex - pointerBibopTag.getDisposition() - 1) << pageSizeLog2;
 
     return reinterpret_cast<PageBlock*>(pageBlock);
 }
@@ -73,10 +73,12 @@ uint32_t BibopTable::getTagIndex(const void* pointer)
 
 uint32_t BibopTable::getTagIndex(const uintptr_t pointer)
 {
+    // pointer / 4096
+
     const uint32_t pageSize = 4096;
     const uint32_t pageSizeLog2 = log2_c<pageSize>::value;
 
-    uintptr_t diff = m_startingAddress - pointer;
+    uintptr_t diff = m_startingAddress - pointer - 1;
     uintptr_t result = (diff & ~(pageSize - 1)) >> pageSizeLog2;
 
     return ~result & 0xfffff;

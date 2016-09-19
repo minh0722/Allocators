@@ -5,6 +5,7 @@ PageBlock::PageBlock(uintptr_t memory, uint32_t memorySize, uint32_t sizeOfEachB
     m_currentUnallocatedOffset(0), m_currentFreedBlockOffset(0)
 {
     m_freeBlocksCount = convertToBlocksCount(memorySize);
+    m_totalFreeBlocksCount = m_freeBlocksCount;
 }
 
 PageBlock::~PageBlock()
@@ -58,7 +59,7 @@ void PageBlock::free(void* ptr)
     /// write the offset of the m_prev freed block
     *reinterpret_cast<uint16_t*>(pointer) = m_currentFreedBlockOffset;
     m_currentFreedBlockOffset = convertToBlocksCount(offset) + 1;
-    ++m_freeBlocksCount;
+    ++m_freeBlocksCount;    
 }
 
 uint16_t PageBlock::getSizeClass() const
@@ -74,6 +75,11 @@ uint32_t PageBlock::getFreeBlocksCount() const
 bool PageBlock::hasFreeBlock() const
 {
     return m_freeBlocksCount > 0;
+}
+
+bool PageBlock::hasNoAllocatedBlock() const
+{
+    return m_totalFreeBlocksCount == m_freeBlocksCount;
 }
 
 uint32_t PageBlock::convertToBlocksCount(uint32_t bytes)

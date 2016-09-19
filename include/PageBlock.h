@@ -30,6 +30,11 @@ public:
         return m_prev;
     }
 
+    bool isTheOnlyNodeInList() const
+    {
+        return m_next == nullptr && m_prev == nullptr;
+    }
+
     void setNext(T* next)
     {
         m_next = next;
@@ -48,11 +53,11 @@ private:
 /*
     Page blocks are 512KB blocks of memory, divided to smaller blocks, whose size depends on the type:
     1. If type is small, the blocks are 4KB
-    2. If type is big, the blocks are of size > 2KB
-    
+    2. If type is big, the blocks are of custom size > 2KB and their offset is ignored and are VirtualFreed
+    on free    
 */
 
-__declspec(align(128))
+__declspec(align(4096))
 class PageBlock : public LinkedListNode<PageBlock>
 {
 public:
@@ -66,7 +71,8 @@ public:
     uint32_t getFreeBlocksCount() const;
 
     bool hasFreeBlock() const;
-    
+    bool hasNoAllocatedBlock() const;
+
     PageBlock() = delete;
     PageBlock(const PageBlock&) = delete;
     PageBlock& operator=(const PageBlock&) = delete;
@@ -80,6 +86,7 @@ private:
     uint32_t m_memorySize;
     uint32_t m_sizeOfEachBlocks;
     uint32_t m_freeBlocksCount;
+    uint32_t m_totalFreeBlocksCount;
 
     /// offset of current freed block from the start of the page in blocks(caused by free)
     int32_t m_currentFreedBlockOffset;
